@@ -1,0 +1,181 @@
+---
+title: "A kasstylesr example workflow"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{A kasstylesr example workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+# Introduction to kasstylesr
+
+## The following presents a tutorial to using kasstylesr to help automate your chart-building workflow
+
+### Setup:
+```{r setup}
+library(kasstylesr)
+library(ggplot2)
+library(scales)
+```
+
+### Using color_picker() and kas_style() for formatting:
+``` {r}
+# Grab some example data
+df <- iris
+```
+
+### The following uses color_picker(3) to set the colour palette, kas_style() is also added to provide formatting
+``` {r, fig.width=8, fig.height=4.5}
+chart_1 <- ggplot(df, aes(Petal.Width, Petal.Length, colour = Species)) +
+  geom_point() +
+  # kas_style() is also added to the plot to help with formatting
+  kas_style() +
+  # color_picker can take an integer as input
+  scale_colour_manual("",
+    values = color_picker(3),
+    # set the legend order manually
+    breaks = c("virginica", "versicolor", "setosa")
+  ) +
+  geom_text(x = 1.4, y = 6.2, label = "virginica", color = "black") +
+  geom_text(x = 0.7, y = 4, label = "versicolor", color = "black") +
+  geom_text(x = 0.8, y = 1.5, label = "setosa", color = "black") +
+  theme(legend.position = "none") +
+  xlab("Petal Width (cm)") +
+  ylab("Petal Length (cm)")
+
+# enact the code
+chart_1
+```
+
+### While the following takes a list of strings (your categories) as input
+``` {r, fig.width=8, fig.height=4.5}
+types <- c("virginica", "versicolor", "setosa")
+chart_2 <- ggplot(df, aes(Petal.Width, Petal.Length, colour = Species)) +
+  geom_point() +
+  kas_style() +
+  scale_colour_manual("",
+    values = color_picker(types),
+    # set the legend order manually
+    breaks = types
+  ) +
+  geom_text(x = 1.4, y = 6.2, label = "virginica", color = "black") +
+  geom_text(x = 0.7, y = 4, label = "versicolor", color = "black") +
+  geom_text(x = 0.8, y = 1.5, label = "setosa", color = "black") +
+  theme(legend.position = "none") +
+  xlab("Petal Width (cm)") +
+  ylab("Petal Length (cm)")
+
+# enact the code
+chart_2
+```
+
+
+### Formatting bar charts works in the same way:
+``` {r, fig.width=8, fig.height=4.5}
+country <- c(
+  rep("United Kingdom", 3), rep("Australia", 3),
+  rep("United States", 3), rep("Sweden", 3)
+)
+occupation <- rep(c("Child", "Working Age", "OAP"), 4)
+value <- abs(rnorm(12, 1000000000, 100000000))
+data <- data.frame(country, occupation, value)
+
+chart_3 <- ggplot(data, aes(fill = occupation, y = value, x = country)) +
+  geom_bar(position = "fill", stat = "identity") +
+  # the primary colour palette is used for bar charts
+  scale_fill_manual(values = color_picker(3, primary_palette = TRUE)) +
+  kas_style() +
+  ylab("occupation share of each country") +
+  scale_y_continuous(
+    labels = scales::label_percent()
+  ) +
+  theme(axis.text.x = element_text(angle = 90))
+
+# enact the code
+chart_3
+```
+
+color_picker() will also provide live good-practice warnings. Attempting to write a stacked bar chart with a primary palette and 4 categories gives a warning and defaults to the multicolour palette
+``` {r, fig.width=8, fig.height=4.5}
+country <- c(
+  rep("U.K.", 4), rep("Australia", 4), rep("U.S.", 4),
+  rep("Sweden", 4)
+)
+occupation <- rep(c("Child", "Working Age", "Unemployed", "OAP"), 4)
+value <- abs(rnorm(16, 1000000000, 100000000))
+data <- data.frame(country, occupation, value)
+
+chart_4 <- ggplot(data, aes(fill = occupation, y = value, x = country)) +
+  geom_bar(position = "fill", stat = "identity") +
+  # the primary colour palette only has 3 colours,
+  # so trying to use 4 will prompt
+  # a return to the multi-colour palette
+  scale_fill_manual(values = color_picker(4, primary_palette = TRUE)) +
+  kas_style() +
+  ylab("occupation share of each country") +
+  scale_y_continuous(
+    labels = scales::label_percent()
+  )
+
+# enact the code
+chart_4
+```
+
+### Saving charts for publication
+
+Prepare the items required into lists below, for each ggplot chart, we need 1 title, source 
+ and alt text to be declared. Every list must be in chart order. ie
+ the 1st item in alt_texts_list will feed into the chart built in the 1st Excel tab,
+which uses the chart declared in the first value of charts_list
+
+``` {r}
+# list of ggplot chart object to add to the release
+charts_list <- list(chart_1, chart_2, chart_3, chart_4)
+# list of names you want your charts to be saved as and/or
+# the tab names for the excel workbook
+chart_names_list <- c("Chart 1", "Chart 2", "Chart 3", "Chart 4")
+# list of chart titles(contain each in strings('')),
+# which appear above the chart in the excel workbook
+# Ensure the chart titles use 'to' instead of a hyphen
+# when referring to 2 time periods.
+titles_list <- titles_list <- c(
+  "Petal dimensions by species", "Petal dimensions by species",
+  "Demographics by country", "Demographics by country"
+)
+# list of data souces you want displayed beneath the chart
+# (contain each in strings(''))
+sources_list <- c(
+  "Source: R Iris dataset", "Source: R Iris dataset",
+  "Source: Example data", "Source: Example data"
+)
+# list of alt texts(contain each in strings('')),
+# which appear underneath the chart in the excel workbook
+alt_texts_list <- c(
+  "Alt text: This describes the chart's meaning", "Alt text",
+  "Alt text", "Alt text"
+)
+```
+
+### The following calls the functions to save and build the chart workbook
+
+the following functions saves the list of plots to the folder "charts", which will be created automatically
+``` {r}
+project_area = './'
+save_list_of_charts_to_folder(chart_names_list, charts_list, project_area)
+```
+The following generates the path to the 'charts' folder created above, no edit required
+
+project_area is the same as specified above, the function will automatically find the 'charts' folder created
+``` {r}
+workbook_name <- 'vignette_charts.xlsx'
+chart_folder_to_workbook(
+  project_area, workbook_name, chart_names_list,
+  titles_list, sources_list, alt_texts_list
+)
+```
