@@ -1,0 +1,21 @@
+Package: kasstylesr
+Title: Add Welsh Government KAS guidance to R plots
+Version: 0.0.1.0000
+Authors@R: c(
+    person("Joe", "Lewis", , "joseph.lewis016@gov.wales", role = c("aut", "cre")),
+    person("Aron", "Nyberg", , "aron.nyberg@gov.wales", role = c("aut")),
+    person("David", "Basch", , "david.basch@gov.wales", role = c("aut")))
+Description: Adding Welsh Government Stats Web guidance to plots, includes functions to select color palettes, format charts and save charts into an accessible workbook.
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Imports: openxlsx,
+         ggplot2
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat,
+    svglite,
+    scales
+VignetteBuilder: knitr
+License: MIT + file LICENSE
