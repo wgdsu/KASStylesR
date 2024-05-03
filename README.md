@@ -19,14 +19,8 @@ guidelines. If that is the case you may want to skip to **Installing as R script
 ## Installing as an R Package
 To install as an R package you can clone this repository:
 ```
-git clone <repolink>
-cd kasstylesr
-```
-
-Then run the following commands in R:
-```
 install.packages('devtools')
-install.packages('./kasstylesr_0.0.1.0000.tar.gz', repos=NULL, type='source')
+devtools::install_github('wgdsu/KASStylesR')
 ```
 
 ## Installing as R Scripts
